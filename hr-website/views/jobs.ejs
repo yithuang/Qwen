@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1>人力资源管理系统</h1>
+            <ul class="nav-links">
+                <li><a href="/">首页</a></li>
+                <li><a href="/employees">员工管理</a></li>
+                <li><a href="/jobs">招聘职位</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>招聘职位</h2>
+        
+        <button id="addJobBtn" class="btn-primary">发布新职位</button>
+        
+        <div id="addJobForm" class="form-container" style="display: none;">
+            <h3>发布新职位</h3>
+            <form id="jobForm">
+                <div class="form-group">
+                    <label for="title">职位名称:</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="department">部门:</label>
+                    <input type="text" id="department" name="department" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">工作地点:</label>
+                    <input type="text" id="location" name="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">职位描述:</label>
+                    <textarea id="description" name="description" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">发布</button>
+                <button type="button" id="cancelJobBtn" class="btn-secondary">取消</button>
+            </form>
+        </div>
+
+        <div class="job-list">
+            <% jobs.forEach(job => { %>
+                <div class="job-card">
+                    <h3><%= job.title %></h3>
+                    <div class="job-meta">
+                        <span>📁 <%= job.department %></span>
+                        <span>📍 <%= job.location %></span>
+                    </div>
+                    <p class="job-description"><%= job.description %></p>
+                    <button onclick="deleteJob(<%= job.id %>)" class="btn-danger">删除职位</button>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('addJobBtn').addEventListener('click', function() {
+            document.getElementById('addJobForm').style.display = 'block';
+        });
+
+        document.getElementById('cancelJobBtn').addEventListener('click', function() {
+            document.getElementById('addJobForm').style.display = 'none';
+            document.getElementById('jobForm').reset();
+        });
+
+        document.getElementById('jobForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('title').value,
+                department: document.getElementById('department').value,
+                location: document.getElementById('location').value,
+                description: document.getElementById('description').value
+            };
+
+            const response = await fetch('/api/jobs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                location.reload();
+            }
+        });
+
+        async function deleteJob(id) {
+            if (confirm('确定要删除该职位吗？')) {
+                // Note: Backend DELETE endpoint for jobs not implemented yet
+                alert('职位删除功能待实现');
+            }
+        }
+    </script>
+</body>
+</html>

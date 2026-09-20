@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1>人力资源管理系统</h1>
+            <ul class="nav-links">
+                <li><a href="/">首页</a></li>
+                <li><a href="/employees">员工管理</a></li>
+                <li><a href="/jobs">招聘职位</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>员工列表</h2>
+        
+        <button id="addEmployeeBtn" class="btn-primary">添加员工</button>
+        
+        <div id="addEmployeeForm" class="form-container" style="display: none;">
+            <h3>添加新员工</h3>
+            <form id="employeeForm">
+                <div class="form-group">
+                    <label for="name">姓名:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="position">职位:</label>
+                    <input type="text" id="position" name="position" required>
+                </div>
+                <div class="form-group">
+                    <label for="department">部门:</label>
+                    <input type="text" id="department" name="department" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">邮箱:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <button type="submit" class="btn-primary">保存</button>
+                <button type="button" id="cancelBtn" class="btn-secondary">取消</button>
+            </form>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>职位</th>
+                    <th>部门</th>
+                    <th>邮箱</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="employeeTableBody">
+                <% employees.forEach(employee => { %>
+                    <tr>
+                        <td><%= employee.id %></td>
+                        <td><%= employee.name %></td>
+                        <td><%= employee.position %></td>
+                        <td><%= employee.department %></td>
+                        <td><%= employee.email %></td>
+                        <td>
+                            <button onclick="deleteEmployee(<%= employee.id %>)" class="btn-danger">删除</button>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.getElementById('addEmployeeBtn').addEventListener('click', function() {
+            document.getElementById('addEmployeeForm').style.display = 'block';
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            document.getElementById('addEmployeeForm').style.display = 'none';
+            document.getElementById('employeeForm').reset();
+        });
+
+        document.getElementById('employeeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                position: document.getElementById('position').value,
+                department: document.getElementById('department').value,
+                email: document.getElementById('email').value
+            };
+
+            const response = await fetch('/api/employees', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                location.reload();
+            }
+        });
+
+        async function deleteEmployee(id) {
+            if (confirm('确定要删除该员工吗？')) {
+                const response = await fetch(`/api/employees/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    location.reload();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
